@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Balance Widget",
+    "description": "Shows the signed-in DeepSeek account balance beside Settings; hover to see the 302.AI and APIYI balances too, right-click to open their top-up pages."
+  }
+}

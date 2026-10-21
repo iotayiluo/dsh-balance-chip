@@ -1,0 +1,3 @@
+- insert:
+    - id: balance-widget
+      name: '@local/dsh-balance-widget'
