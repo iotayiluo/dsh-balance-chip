@@ -2,7 +2,21 @@
 
 插件是纯 JavaScript 的本地 bundle，不需要编译、没有 npm 依赖；复制目录 + 安装即可。适用于同一代 DeepSeek Harness 桌面版（0.2.x），Windows / macOS / Linux 都可以。
 
-## 方式 A：从 npm 安装（发布后可用，最省事）
+## 方式 A：从 GitHub 仓库安装（推荐，不用拷贝文件）
+
+在另一台电脑的 DSH 里打开「插件」→「添加插件」→「安装第三方插件」，输入：
+
+```
+https://github.com/iotayiluo/dsh-balance-chip.git
+```
+
+勾选信任并点「安装」，完成后刷新页面。
+
+> 目标电脑需要装有 Git（插件管理器用 pnpm 拉取仓库时会调用它）。没装的话可以用免安装的 MinGit：下载
+> https://registry.npmmirror.com/-/binary/git-for-windows/v2.56.0.windows.2/MinGit-2.56.0.2-64-bit.zip
+> 解压到固定目录，把里面的 `cmd` 目录加进 PATH 即可（不需要管理员权限）。
+
+## 方式 B：从 npm 安装（可选，需先发布）
 
 插件发布到 npm 后（包名 `dsh-balance-chip`），在另一台电脑上：
 
@@ -11,9 +25,7 @@
 3. Registry 选官方 npm（新发布的包在 npmmirror 上可能要等同步）；
 4. 勾选信任并点「安装」，完成后刷新页面。
 
-这种方式不需要拷贝插件目录，也不需要找 Agent。
-
-## 方式 B：从本地目录安装
+## 方式 C：从本地目录安装
 
 ## 1. 复制插件目录
 
