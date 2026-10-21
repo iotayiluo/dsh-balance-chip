@@ -1,42 +1,44 @@
-{
-  "name": "dsh-balance-chip",
-  "version": "1.6.0",
-  "description": "DeepSeek / 302.AI / APIYI balance chip for the DeepSeek Harness Web sidebar, with one-click top-up shortcuts.",
-  "type": "module",
-  "license": "MIT",
-  "keywords": [
-    "dsh",
-    "deepseek-harness",
-    "plugin",
-    "bundle",
-    "balance",
-    "deepseek",
-    "302ai",
-    "apiyi"
-  ],
-  "exports": {
-    ".": "./index.js",
-    "./client": "./client.js",
-    "./locale/*.json": "./locale/*.json",
-    "./icon": "./icon.svg"
-  },
-  "files": [
-    "index.js",
-    "client.js",
-    "cordis.patch.yml",
-    "locale/*.json",
-    "icon.svg",
-    "INSTALL-other-pc.md"
-  ],
-  "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
-    "client": {
-      "platform": "web",
-      "immediately": true,
-      "inject": [
-        "@deepseek-ai/dsh-client-ui-sidebar",
-        "@deepseek-ai/dsh-client-locale"
-      ]
-    }
-  }
+﻿{
+    "name":  "dsh-balance-chip",
+    "version":  "1.6.1",
+    "description":  "DeepSeek / 302.AI / APIYI balance chip for the DeepSeek Harness Web sidebar, with one-click top-up shortcuts.",
+    "type":  "module",
+    "license":  "MIT",
+    "keywords":  [
+                     "dsh",
+                     "deepseek-harness",
+                     "plugin",
+                     "bundle",
+                     "balance",
+                     "deepseek",
+                     "302ai",
+                     "apiyi"
+                 ],
+    "exports":  {
+                    ".":  "./index.js",
+                    "./client":  "./client.js",
+                    "./locale/*.json":  "./locale/*.json",
+                    "./icon":  "./icon.svg"
+                },
+    "files":  [
+                  "index.js",
+                  "client.js",
+                  "cordis.patch.yml",
+                  "locale/*.json",
+                  "icon.svg",
+                  "INSTALL-other-pc.md"
+              ],
+    "dsh":  {
+                "bundle":  {
+                               "patch":  "./cordis.patch.yml"
+                           },
+                "client":  {
+                               "platform":  "web",
+                               "immediately":  true,
+                               "inject":  [
+                                              "@deepseek-ai/dsh-client-ui-sidebar",
+                                              "@deepseek-ai/dsh-client-locale"
+                                          ]
+                           }
+            }
 }

@@ -89,8 +89,8 @@ const TOPUP_HOSTS = new Set([
 const ACCOUNT_DEBOUNCE_MS = 2000
 /** Give 302.AI billing a moment to settle after a generation completes. */
 const RELAY_DEBOUNCE_MS = 4000
-/** Confirmation read after the billing service had time to settle. */
-const VERIFY_DELAY_MS = 60000
+/** Confirmation reads after the billing service had time to settle. */
+const VERIFY_DELAYS_MS = [60000, 180000, 300000, 600000]
 /** Comment heartbeat so an idle stream is never dropped as dead. */
 const STREAM_KEEPALIVE_MS = 25000
 
@@ -103,10 +103,8 @@ const streamClients = new Set()
 let accountTimer = null
 let relayTimer = null
 let apiyiTimer = null
-/** Pending one-shot confirmation reads. */
-let accountVerifyTimer = null
-let relayVerifyTimer = null
-let apiyiVerifyTimer = null
+/** Pending one-shot confirmation reads per kind. */
+const verifyTimers = { account: [], relay: [], apiyi: [] }
 /** Last pushed value per kind; a repeated read is not re-broadcast. */
 let lastAccountKey = null
 let lastRelayKey = null
@@ -142,7 +140,7 @@ function clientMetadata(req) {
   const header = req && req.headers ? req.headers['accept-language'] : undefined
   const first = typeof header === 'string' ? header.split(',')[0].trim() : ''
   return {
-    version: '1.6.0',
+    version: '1.6.1',
     locale: first || 'zh-CN',
     timezoneOffsetSeconds: -new Date().getTimezoneOffset() * 60,
   }
@@ -321,29 +319,30 @@ function publishApiyi(data, force) {
   broadcast('apiyi', data)
 }
 
-/** Arm the one-shot confirmation read that follows an event-triggered read. */
+/** Drop pending confirmation reads for one kind. */
+function clearVerify(kind) {
+  for (const timer of verifyTimers[kind]) clearTimeout(timer)
+  verifyTimers[kind].length = 0
+}
+
+/**
+ * Arm the confirmation reads that follow an event-triggered read. Billing can
+ * settle later than a minute, so the value is re-read a second time; each read
+ * only pushes when it actually changes.
+ */
 function armVerify(kind, ctx) {
-  if (kind === 'account') {
-    if (accountVerifyTimer) clearTimeout(accountVerifyTimer)
-    accountVerifyTimer = setTimeout(() => {
-      accountVerifyTimer = null
-      void refreshAccount(ctx)
-    }, VERIFY_DELAY_MS)
-    return
+  clearVerify(kind)
+  const refresh =
+    kind === 'account' ? refreshAccount : kind === 'relay' ? refreshRelay : refreshApiyi
+  for (const delay of VERIFY_DELAYS_MS) {
+    const timer = setTimeout(() => {
+      const list = verifyTimers[kind]
+      const index = list.indexOf(timer)
+      if (index >= 0) list.splice(index, 1)
+      void refresh(ctx)
+    }, delay)
+    verifyTimers[kind].push(timer)
   }
-  if (kind === 'relay') {
-    if (relayVerifyTimer) clearTimeout(relayVerifyTimer)
-    relayVerifyTimer = setTimeout(() => {
-      relayVerifyTimer = null
-      void refreshRelay(ctx)
-    }, VERIFY_DELAY_MS)
-    return
-  }
-  if (apiyiVerifyTimer) clearTimeout(apiyiVerifyTimer)
-  apiyiVerifyTimer = setTimeout(() => {
-    apiyiVerifyTimer = null
-    void refreshApiyi(ctx)
-  }, VERIFY_DELAY_MS)
 }
 
 /** Read the account balance, push a change, and arm its confirmation read. */
@@ -642,15 +641,12 @@ export function apply(ctx) {
       if (accountTimer) clearTimeout(accountTimer)
       if (relayTimer) clearTimeout(relayTimer)
       if (apiyiTimer) clearTimeout(apiyiTimer)
-      if (accountVerifyTimer) clearTimeout(accountVerifyTimer)
-      if (relayVerifyTimer) clearTimeout(relayVerifyTimer)
-      if (apiyiVerifyTimer) clearTimeout(apiyiVerifyTimer)
+      clearVerify('account')
+      clearVerify('relay')
+      clearVerify('apiyi')
       accountTimer = null
       relayTimer = null
       apiyiTimer = null
-      accountVerifyTimer = null
-      relayVerifyTimer = null
-      apiyiVerifyTimer = null
       lastAccountKey = null
       lastRelayKey = null
       lastApiyiKey = null

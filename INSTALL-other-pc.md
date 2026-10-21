@@ -7,7 +7,7 @@
 在另一台电脑的 DSH 里打开「插件」→「添加插件」→「安装第三方插件」，粘贴：
 
 ```
-https://cdn.jsdelivr.net/gh/iotayiluo/dsh-balance-chip@v1.6.0-dist/dsh-balance-chip-1.6.0.tgz
+https://cdn.jsdelivr.net/gh/iotayiluo/dsh-balance-chip@v1.6.1-dist/dsh-balance-chip-1.6.1.tgz
 ```
 
 勾选信任并点「安装」，完成后刷新页面。

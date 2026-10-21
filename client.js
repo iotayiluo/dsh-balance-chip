@@ -44,7 +44,7 @@ window.__ModuleLoader__.load({
         menuRelay: '302.AI 余额',
         menuTopUp: '去充值 →',
         menuRefresh: '刷新余额',
-        refreshHint: '点击立即刷新；余额变化时自动更新',
+        refreshHint: '点击立即刷新；平台余额更新可能有延迟',
         signInHint: '未登录 DeepSeek 账号，可在「设置 → 账户」登录',
         errorHint: '余额读取失败，点击重试',
       },
@@ -70,7 +70,7 @@ window.__ModuleLoader__.load({
         menuRelay: '302.AI balance',
         menuTopUp: 'Top up →',
         menuRefresh: 'Refresh balances',
-        refreshHint: 'Click to refresh; updates automatically when the balance changes',
+        refreshHint: 'Click to refresh; platform balance updates may be delayed',
         signInHint: 'Not signed in to DeepSeek. Go to Settings → Account.',
         errorHint: 'Balance unavailable, click to retry',
       },
@@ -123,6 +123,14 @@ window.__ModuleLoader__.load({
       return lang
     }
 
+    /** Keep whichever snapshot the Host fetched later. */
+    function newerSnapshot(previous, data) {
+      if (!previous || !previous.data) return true
+      const before = Number(previous.data.fetchedAt) || 0
+      const after = Number(data && data.fetchedAt) || 0
+      return after >= before
+    }
+
     /** One independent read that never rejects and keeps the previous value. */
     function useBalanceRead(route) {
       const [state, setState] = React.useState({ phase: 'loading' })
@@ -144,7 +152,9 @@ window.__ModuleLoader__.load({
           if (!response.ok || !data || data.status === 'error') {
             throw new Error(`HTTP ${response.status}`)
           }
-          setState({ phase: 'ready', data })
+          setState((previous) =>
+            newerSnapshot(previous, data) ? { phase: 'ready', data } : previous,
+          )
         } catch (error) {
           if (id !== sequence.current) return
           setState({
@@ -157,11 +167,12 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         void refresh()
       }, [refresh])
-      /** Apply a value pushed by the Host stream; it supersedes a pending poll. */
+      /** Apply a value pushed by the Host stream; it supersedes an older snapshot. */
       const applyExternal = React.useCallback((data) => {
         if (!data) return
-        sequence.current += 1
-        setState({ phase: 'ready', data })
+        setState((previous) =>
+          newerSnapshot(previous, data) ? { phase: 'ready', data } : previous,
+        )
       }, [])
       return [state, refresh, applyExternal]
     }
@@ -335,6 +346,19 @@ window.__ModuleLoader__.load({
         refreshRelay()
         refreshApiyi()
       }, [refreshAccount, refreshRelay, refreshApiyi])
+
+      // Returning to the window re-reads once: pushes can be missed while hidden.
+      React.useEffect(() => {
+        const onWake = () => {
+          if (document.visibilityState === 'visible') refresh()
+        }
+        window.addEventListener('focus', onWake)
+        document.addEventListener('visibilitychange', onWake)
+        return () => {
+          window.removeEventListener('focus', onWake)
+          document.removeEventListener('visibilitychange', onWake)
+        }
+      }, [refresh])
 
       const data = account.data
       const settled = account.phase === 'ready' || account.phase === 'refreshing'
