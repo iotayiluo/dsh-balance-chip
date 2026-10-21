@@ -2,7 +2,21 @@
 
 插件是纯 JavaScript 的本地 bundle，不需要编译、没有 npm 依赖；复制目录 + 安装即可。适用于同一代 DeepSeek Harness 桌面版（0.2.x），Windows / macOS / Linux 都可以。
 
-## 方式 A：从 GitHub 仓库安装（推荐，不用拷贝文件）
+## 方式 A：从 tarball URL 安装（推荐：不用装 Git、国内可访问）
+
+在另一台电脑的 DSH 里打开「插件」→「添加插件」→「安装第三方插件」，粘贴：
+
+```
+https://cdn.jsdelivr.net/gh/iotayiluo/dsh-balance-chip@v1.6.0-dist/dsh-balance-chip-1.6.0.tgz
+```
+
+勾选信任并点「安装」，完成后刷新页面。
+
+- jsDelivr 是国内可访问的 GitHub CDN；这个域名不行时，把 `cdn.jsdelivr.net` 换成 `fastly.jsdelivr.net`，路径不变。
+- 已实测该 URL 可以被 npm/pnpm 正常下载安装（`npm install <URL>` 通过）。
+- 以后更新版本时，换 URL 里的 tag（例如 `v1.7.0-dist`）。
+
+## 方式 B：从 GitHub 仓库安装（需要目标电脑有 Git）
 
 在另一台电脑的 DSH 里打开「插件」→「添加插件」→「安装第三方插件」，输入：
 
@@ -12,11 +26,11 @@ https://github.com/iotayiluo/dsh-balance-chip.git
 
 勾选信任并点「安装」，完成后刷新页面。
 
-> 目标电脑需要装有 Git（插件管理器用 pnpm 拉取仓库时会调用它）。没装的话可以用免安装的 MinGit：下载
+> 目标电脑需要装有 Git（插件管理器用 pnpm 拉取仓库时会调用它），并且 GitHub 的 HTTPS git 通道要通（国内可能不稳定，失败就用方式 A）。免安装 MinGit：下载
 > https://registry.npmmirror.com/-/binary/git-for-windows/v2.56.0.windows.2/MinGit-2.56.0.2-64-bit.zip
 > 解压到固定目录，把里面的 `cmd` 目录加进 PATH 即可（不需要管理员权限）。
 
-## 方式 B：从 npm 安装（可选，需先发布）
+## 方式 C：从 npm 安装（可选，需先发布）
 
 插件发布到 npm 后（包名 `dsh-balance-chip`），在另一台电脑上：
 
@@ -25,7 +39,7 @@ https://github.com/iotayiluo/dsh-balance-chip.git
 3. Registry 选官方 npm（新发布的包在 npmmirror 上可能要等同步）；
 4. 勾选信任并点「安装」，完成后刷新页面。
 
-## 方式 C：从本地目录安装
+## 方式 D：从本地目录安装
 
 ## 1. 复制插件目录
 
